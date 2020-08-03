@@ -6,7 +6,7 @@
 
 2. Install [Docker ce](https://docs.docker.com/install/linux/docker-ce/ubuntu/).
 
-3. [OPTIONALLY] [Manage docker as a non-root user ](https://docs.docker.com/install/linux/linux-postinstall/). If you don't do this step, please run the docker command with the sudo prefix.
+3. [Manage docker as a non-root user ](https://docs.docker.com/install/linux/linux-postinstall/).
 
 4. Install [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
 
