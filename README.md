@@ -21,5 +21,6 @@
 
 ## Run the benchmark script
   ```shell
-  docker container exec vae_container python3 benchmark.py
+  cd $WORKDIR/
+  docker run --rm --gpus all -v $PWD:/home/vae/project/ vae:latest python3 benchmark.py
   ```
