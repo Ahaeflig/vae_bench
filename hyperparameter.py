@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Any
 import numpy as np
 
 
-class Hyperparameter(object):
+class Hyperparameter():
     ''' Class that store an hyperparameter and provides easy sampling and mutating based on priority.
     Args:
         name: name of the entry, should be unique
@@ -10,7 +10,7 @@ class Hyperparameter(object):
         choices: a list of python object
         priority: a number representing the priority when evoloving/mutating parameters, 0 = constant.
     '''
-    def __init__(self, name: str, params: object, choices: List[object], priority: int):
+    def __init__(self, name: str, params: Any, choices: List[Any], priority: int) -> None:
         self.name = name
         self.params = params
         self.choices = choices
