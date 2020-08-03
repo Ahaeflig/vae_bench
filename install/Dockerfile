@@ -12,7 +12,6 @@ libhdf5-dev libatlas-base-dev sudo zip unzip build-essential python3-setuptools
 RUN apt-get -y upgrade
 
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install virtualenv
 
 USER vae
 
