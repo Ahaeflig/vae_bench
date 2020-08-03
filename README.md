@@ -1,6 +1,5 @@
 # Variational Auto Encoder Simple Benchmarks
 
-
 ## Installation (Linux + Docker + Nvidia GPU)
 
 1. Install the [NVIDIA drivers](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).
@@ -20,7 +19,7 @@
   ./install/install.sh
   ```
 
-7. Run the benchmark script
+## Run the benchmark script
   ```shell
   docker container exec vae_container python3 benchmark.py
   ```
