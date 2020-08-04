@@ -1,5 +1,11 @@
 # Variational Auto Encoder Simple Benchmarks
 
+In this repository I plan to benchmark VAE variants focusing on reproducibility and ease of reading.
+Goals: 
+1. One file per model
+2. Run all experiments with one command
+3. Easy experimentation
+
 ## Installation (Linux + Docker + Nvidia GPU)
 
 1. Install the [NVIDIA drivers](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).

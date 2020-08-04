@@ -1,5 +1,5 @@
 from typing import List, Any
-import numpy as np
+import numbers
 
 
 class Hyperparameter():
@@ -22,15 +22,23 @@ class Hyperparameter():
     def sample(self):
         raise NotImplementedError
 
-    def check(self):
-        raise NotImplementedError
+    def check(self) -> bool:
+        if self.priority > 0:
+            if self.params in self.choices:
+                return True
+            else:
+                # For numeral parameters we additionally check boundaries of the choices.
+                if isinstance(self.params, numbers.Number) and (self.params >= self.choices[0] and self.params <= self.choices[-1]):
+                    return True
+                return False
+        return True
 
 
 class HyperparameterDict(dict):
     ''' Class that store key values pairs <name - hyperparamaters>
     '''
     def __setitem__(self, key, value):
-        assert isinstance(value, Hyperparameter), print(f'Value is not an Hyperparameter')
+        assert isinstance(value, Hyperparameter), print('Value is not an Hyperparameter')
         super().__setitem__(key, value)
 
     def __getitem__(self, key):
@@ -38,3 +46,23 @@ class HyperparameterDict(dict):
 
     def get(self, key, default=None):
         return super().get(key, default).params
+
+    def check(self):
+        '''Verifies some part of the config, mainly the presence of some keys and checks all sub members
+        '''
+
+        # Check all params are inside of choices of each HP
+        for key in super().keys():
+            item = super().__getitem__(key)
+            assert(item.check()), print(f'config entry {key} with value {item.params} was not in {item.choices}')
+
+        # Check minimum stuff is inside the config
+        # TODO
+        return True
+
+    def __str__(self):
+        ret_str = ''
+        for key in super().keys():
+            item = self.__getitem__(key)
+            ret_str += f'{key}: {item}\n'
+        return ret_str
