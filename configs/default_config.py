@@ -1,11 +1,18 @@
 from hyperparameter import Hyperparameter as HP, HyperparameterDict
 import numpy as np
+import tensorflow as tf
 
 params = [
-    HP('learning_rate', 0.15, np.linspace(0.000005, 0.1, 300), 1),
-    HP('optimizer_name', 'adam', ['adam', 'sgd'], 0),
-    HP('model_path', 'model/my_model_weights/', ['model/my_model_weights/'], 0),
-    HP('dataset', 'BOEUF', ['BOEUF', 'FRAISE'], 0)
-    ]
+    # Mutable parameters
+    HP('learning_rate', 0.001, np.linspace(0.000005, 0.5, 300), 1),
+    HP('latent_dim', 2, range(1, 100, 1), 1),
 
-config = HyperparameterDict({p.name : p for p in params})
+    # Constant parameters
+    HP('optimizer', tf.keras.optimizers.Adam(), [], 0),
+    HP('model_name', 'vae', [], 0),
+    HP('ckpt_path', 'ckpt/my_model_weights/', [], 0),
+    HP('dataset', 'mnist', [], 0),
+    HP('epochs', 30, [], 0),
+    HP('batch_size', 2, [], 0)]
+
+config = HyperparameterDict({p.name: p for p in params})
