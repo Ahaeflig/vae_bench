@@ -16,3 +16,7 @@ RUN python3 -m pip install --upgrade pip
 USER vae
 
 WORKDIR /home/vae/project/
+
+COPY requirements.txt /tmp/
+
+RUN pip install -r /tmp/requirements.txt
