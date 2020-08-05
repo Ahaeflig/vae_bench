@@ -28,5 +28,5 @@ Goals:
 ## Run the benchmark script
   ```shell
   cd $WORKDIR/
-  docker run --rm --gpus all -v $PWD:/home/vae/project/ vae:latest python3 benchmark.py
+  docker run --rm --gpus all vae:latest python3 benchmark.py
   ```
