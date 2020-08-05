@@ -17,6 +17,8 @@ USER vae
 
 WORKDIR /home/vae/project/
 
-COPY requirements.txt /tmp/
+COPY install/requirements.txt /tmp/
 
 RUN pip install -r /tmp/requirements.txt
+
+COPY ./ /home/vae/project/

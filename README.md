@@ -1,7 +1,7 @@
 # Variational Auto Encoder Simple Benchmarks
 
 In this repository I plan to benchmark VAE variants focusing on reproducibility and ease of reading.
-Goals: 
+Goals:
 1. One file per model
 2. Run all experiments with one command
 3. Easy experimentation
