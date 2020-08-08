@@ -34,6 +34,11 @@ def parse_config_for_data(config: HyperparameterDict):
         mnist_digits = np.concatenate([x_train, x_test], axis=0)
         mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
         return mnist_digits
+    elif config['dataset'] == 'cifar100':
+        (x_train, _), (x_test, _) = keras.datasets.cifar100.load_data()
+        cifar_images = np.concatenate([x_train, x_test], axis=0)
+        cifar_images = np.expand_dims(mnist_digits, -1).astype("float32") / 255
+        return cifar_images
 
     raise NotImplementedError
 

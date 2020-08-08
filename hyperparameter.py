@@ -1,5 +1,6 @@
 from typing import List, Any, Dict
 import numbers
+import inspect
 
 
 class Hyperparameter():
@@ -23,10 +24,10 @@ class Hyperparameter():
 
     def get_value(self):
         if self.inner_args:
-            # Get inner HP values recursively
-            args = {}
-            for key in self.inner_args.keys():
-                args[key] = self.inner_args[key].get_value()
+            # Get list of valid arguments for the function
+            possible_args = inspect.signature(self.params).parameters.keys()
+            # Generate args to pass to function
+            args = {k: self.inner_args[k].get_value() for k in self.inner_args.keys() if k in possible_args}
             return self.params(**args)
         else:
             return self.params
