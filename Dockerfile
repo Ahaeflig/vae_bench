@@ -21,4 +21,5 @@ COPY install/requirements.txt /tmp/
 
 RUN pip install -r /tmp/requirements.txt
 
-COPY ./ /home/vae/project/
+# We rather mount the local directory in the container such that output file are directly accesible
+# COPY ./ /home/vae/project/
