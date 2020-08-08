@@ -12,9 +12,7 @@ import models
 
 
 def parse_config_for_model(config: HyperparameterDict) -> tf.keras.Model:
-    # Parse optimizer and lr
     optimizer = config.get('optimizer')
-    optimizer.learning_rate = config.get('learning_rate')
 
     # Prepare model
     if config['model_name'] == 'vae':

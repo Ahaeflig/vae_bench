@@ -3,26 +3,46 @@ import numbers
 
 
 class Hyperparameter():
+    
     ''' Class that store an hyperparameter and provides easy sampling and mutating based on priority.
     Args:
         name: name of the entry, should be unique
         params: the parameter, any python object
         choices: a list of python object
+        inner_args: if the inner parameters contains mutable values they can be specified, enabling recursive search etc
         priority: a number representing the priority when evoloving/mutating parameters, 0 = constant.
     '''
-    def __init__(self, name: str, params: Any, choices: List[Any], priority: int) -> None:
+    def __init__(self, name: str, params: Any, choices: List[Any], inner_args: Dict, priority: int) -> None:
         self.name = name
         self.params = params
         self.choices = choices
+        self.inner_args = inner_args
         self.priority = priority
 
-    def mutate(self):
-        raise NotImplementedError
+        # TODO check construction
 
-    def sample(self):
-        raise NotImplementedError
+    def get_value(self):
+        if self.inner_args:
+            # Get inner HP values recursively
+            args = {}
+            for key in self.inner_args.keys():
+                args[key] = self.inner_args[key].get_value()
+            return self.params(**args)
+        else:
+            return self.params
 
+    def get_inner_description(self):
+        if self.inner_args:
+            descr = ''
+            for key in self.inner_args.keys():
+                descr += f'    {key}: {self.inner_args[key].get_inner_description()}\n'
+            return descr
+        else:
+            return str(self.params)
+
+    # TODO not valid anymore correct with
     def check(self) -> bool:
+        raise NotImplementedError
         if self.priority > 0:
             if self.params in self.choices:
                 return True
@@ -42,10 +62,10 @@ class HyperparameterDict(dict):
         super().__setitem__(key, value)
 
     def __getitem__(self, key):
-        return super().__getitem__(key).params
+        return super().__getitem__(key).get_value()
 
     def get(self, key, default=None):
-        return super().get(key, default).params
+        return super().get(key, default).get_value()
 
     def check(self):
         '''Verifies some part of the config, mainly the presence of some keys and checks all sub members
@@ -54,10 +74,7 @@ class HyperparameterDict(dict):
         # Check all params are inside of choices of each HP
         for key in super().keys():
             item = super().__getitem__(key)
-            assert(item.check()), print(f'config entry {key} with value {item.params} was not in {item.choices}')
-
-        # Check minimum stuff is inside the config
-        # TODO
+            assert(item.check()), print(f'config entry {key} with value {item.get_value()} was not in {item.choices}')
         return True
 
     def __str__(self):
@@ -65,4 +82,6 @@ class HyperparameterDict(dict):
         for key in super().keys():
             item = self.__getitem__(key)
             ret_str += f'{key}: {item}\n'
+            if super().__getitem__(key).inner_args:
+              ret_str += f'{super().__getitem__(key).get_inner_description()}'
         return ret_str
