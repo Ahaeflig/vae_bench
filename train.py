@@ -4,6 +4,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+import tensorflow_datasets as tfds
 from runpy import run_path
 from pathlib import Path
 
@@ -17,30 +18,53 @@ def parse_config_for_model(config: HyperparameterDict) -> tf.keras.Model:
     # Prepare model
     if config['model_name'] == 'vae':
         latent_dim = config.get("latent_dim")
-        model = models.VAE(latent_dim=latent_dim)
+        model = models.VAE(keras.Input(shape=config['input_shape']), latent_dim)
+        model.build((None, 28, 28, 1))
         model.compile(optimizer=optimizer)
 
     else:
         raise NotImplementedError
 
+    # If model folder exists load weights
+    if Path(config['ckpt_path']).exists():
+        model.load_weights(config['ckpt_path'])
+
     return model
 
 
-def parse_config_for_data(config: HyperparameterDict):
+# TODO move data file and enable loading from various sources, add other dataset
+def parse_config_for_data(config: HyperparameterDict) -> tf.data.Dataset:
+    def prepare_ds(dataset: tf.data.Dataset, config: HyperparameterDict) -> tf.data.Dataset:
+        # Cast to float
+        dataset = dataset.map(lambda x: tf.cast(x, tf.float32), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        dataset = dataset.map(lambda x: config['rescaling'](x), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        dataset = dataset.map(config['resizing'], num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        if config['cache_data']:
+            dataset.cache()  # As the dataset fit in memory, cache before shuffling for better performance.
+        dataset = dataset.shuffle(1000)  # For true randomness, set the shuffle buffer to the full dataset size.
+        dataset = dataset.batch(config['batch_size'])
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        return dataset
+
     # Prepare dataset
-
     if config['dataset'] == 'mnist':
-        (x_train, _), (x_test, _) = keras.datasets.mnist.load_data()
-        mnist_digits = np.concatenate([x_train, x_test], axis=0)
-        mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
-        return mnist_digits
+        ds_train, ds_validation = tfds.load('mnist', split=['train', 'test'], shuffle_files=True, data_dir=config['data_dir'])
+        ds_train = ds_train.map(lambda x: x['image'])
+        ds_validation = ds_validation.map(lambda x: x['image'])
     elif config['dataset'] == 'cifar100':
-        (x_train, _), (x_test, _) = keras.datasets.cifar100.load_data()
-        cifar_images = np.concatenate([x_train, x_test], axis=0)
-        cifar_images = np.expand_dims(mnist_digits, -1).astype("float32") / 255
-        return cifar_images
+        raise NotImplementedError
 
-    raise NotImplementedError
+    elif config['dataset'] == 'celeb_a':
+        ds_train, ds_validation = tfds.load('celeb_a', split=['train', 'validation'],
+                                            shuffle_files=True, data_dir=config['data_dir'])
+        ds_train = ds_train.map(lambda x: x['image'])
+        ds_validation = ds_validation.map(lambda x: x['image'])
+    else:
+        raise NotImplementedError
+
+    ds_train = prepare_ds(ds_train, config)
+    ds_validation = prepare_ds(ds_validation, config)
+    return ds_train, ds_validation
 
 
 if __name__ == "__main__":
@@ -57,11 +81,18 @@ if __name__ == "__main__":
     settings = run_path(config_path)
     config = settings['config']
 
-    print('Run starting with following settings:')
+    print('=========================================')
+    print('Run starting with the following settings:')
+    print('=========================================')
     print(config)
 
     model = parse_config_for_model(config)
-    data = parse_config_for_data(config)
-    epochs, batch_size = config.get('epochs'), config.get('batch_size')
+    model.summary()
 
-    model.fit(data, epochs=30, batch_size=128)
+    train_ds, val_ds = parse_config_for_data(config)
+
+    # Model saving callback
+    save_callback = keras.callbacks.ModelCheckpoint(config['ckpt_path'], monitor='val_loss', save_best_only=False,
+                                                    save_weights_only=False, mode='min', save_freq='epoch')
+
+    model.fit(train_ds, epochs=config.get('epochs'), validation_data=val_ds, callbacks=[save_callback])

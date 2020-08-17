@@ -4,7 +4,6 @@ import inspect
 
 
 class Hyperparameter():
-    
     ''' Class that store an hyperparameter and provides easy sampling and mutating based on priority.
     Args:
         name: name of the entry, should be unique
@@ -84,5 +83,5 @@ class HyperparameterDict(dict):
             item = self.__getitem__(key)
             ret_str += f'{key}: {item}\n'
             if super().__getitem__(key).inner_args:
-              ret_str += f'{super().__getitem__(key).get_inner_description()}'
+                ret_str += f'{super().__getitem__(key).get_inner_description()}'
         return ret_str

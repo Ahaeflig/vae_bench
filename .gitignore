@@ -131,3 +131,8 @@ dmypy.json
 # VSCode
 .vscode/
 
+# Project specific
+tmp/
+ckpt/
+.DS_Store
+data/
