@@ -136,3 +136,4 @@ tmp/
 ckpt/
 .DS_Store
 data/
+logs/

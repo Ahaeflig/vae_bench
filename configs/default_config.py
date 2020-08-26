@@ -34,10 +34,11 @@ params = [
     # Constant parameters priority = 0
     HP('model_name', 'vae', [], {}, 0),
     HP('ckpt_path', 'ckpt/vae/', [], {}, 0),
+    HP('log_dir', 'logs/vae/', [], {}, 0),
     HP('dataset', 'mnist', [], {}, 0),
     HP('data_dir', 'data/', [], {}, 0),
-    HP('epochs', 1, [], {}, 0),
-    HP('batch_size', 128, [], {}, 0),
+    HP('epochs', 5, [], {}, 0),
+    HP('batch_size', 64, [], {}, 0),
     HP('input_shape', [28, 28, 1], [], {}, 0),
     HP('cache_data', True, [], {}, 0),
 

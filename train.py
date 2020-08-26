@@ -32,7 +32,7 @@ def parse_config_for_model(config: HyperparameterDict) -> tf.keras.Model:
     return model
 
 
-# TODO move data file and enable loading from various sources, add other dataset
+# TODO move to data file and enable loading from various sources, add other dataset
 def parse_config_for_data(config: HyperparameterDict) -> tf.data.Dataset:
     def prepare_ds(dataset: tf.data.Dataset, config: HyperparameterDict) -> tf.data.Dataset:
         # Cast to float
@@ -91,8 +91,12 @@ if __name__ == "__main__":
 
     train_ds, val_ds = parse_config_for_data(config)
 
-    # Model saving callback
+    # Callbacks
     save_callback = keras.callbacks.ModelCheckpoint(config['ckpt_path'], monitor='val_loss', save_best_only=False,
                                                     save_weights_only=False, mode='min', save_freq='epoch')
 
-    model.fit(train_ds, epochs=config.get('epochs'), validation_data=val_ds, callbacks=[save_callback])
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=config['log_dir'], write_graph=True,
+                                                          histogram_freq=5, profile_batch=0, write_images=False)
+
+    model.fit(train_ds, epochs=config.get('epochs'), validation_data=val_ds, callbacks=[save_callback,
+                                                                                        tensorboard_callback])
